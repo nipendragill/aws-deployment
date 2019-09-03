@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from .Serializers.user_serialzer import UserSerializer
-from .Serializers.bank_serializer import BankSerializer, BankDetailsReadSerializer
+from .Serializers.bank_serializer import BankSerializer, BranchesReadSerializer, BranchesWriteSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -14,6 +14,8 @@ from .pagination import CustomPagination
 from django.db import transaction, DatabaseError
 from rest_framework import request
 from .error import Error
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from rest_framework.pagination import PageNumberPagination
 
 
 class CreateUserAPIView(APIView):
@@ -27,18 +29,12 @@ class CreateUserAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class BankAPIView(generics.ListCreateAPIView):
-    permission_classes = [IsAuthenticated]
-    pagination_class = CustomPagination
+class BankAPIView(generics.CreateAPIView):
 
-    def post(self, request, *args, **kwargs):
+    permission_classes = (IsAuthenticated,)
 
-        id = request.data.get('bank_id')
-        if not isinstance(id, int):
-            return Response({'detail': 'Please provide Integer BankId'},
-                            status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request):
         bank_data = request.data
-
         transaction.set_autocommit(False)
         try:
             serializer_class = BankSerializer(data=bank_data)
@@ -56,16 +52,47 @@ class BankAPIView(generics.ListCreateAPIView):
             return Response({'detail': 'Error inserting database'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+class BranchesView(generics.ListCreateAPIView):
+
+    def post(self, request):
+
+        data = request.data
+
+        bank_id = request.data.get('bank_id')
+        transaction.set_autocommit(False)
+        try:
+            bank_id_exists = Bank.objects.filter(id=bank_id)
+            if not bank_id_exists:
+                return Response('BankId doesnot exists',
+                                status=status.HTTP_400_BAD_REQUEST)
+            serializer_class = BranchesWriteSerializer(data=request.data)
+            if serializer_class.is_valid(raise_exception=True):
+                serializer_class.save()
+                transaction.commit()
+                transaction.set_autocommit(True)
+                return Response(serializer_class.data, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer_class.errors, status=status.HTTP_400_BAD_REQUEST)
+        except DatabaseError as e:
+            return Response('Database error occured',
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     def get_queryset(self, ifsc_code=None):
 
         try:
             bank_details = Branches.objects.filter(ifsc_code=ifsc_code)
-            return bank_details, None
-        except DatabaseError as e:
-            error = Error({'detail':'Ifsc code does not exist'},
-                            status=status.HTTP_400_BAD_REQUEST)
-            return None, error
 
+            if bank_details.exists():
+                return bank_details.first(), None
+            else:
+                error = Error({'detail': 'IFSC code doesnot exists'},
+                              status=status.HTTP_400_BAD_REQUEST)
+                return None, error
+        except DatabaseError as e:
+            error = Error({'detail': 'Ifsc code does not exist'},
+                          status=status.HTTP_400_BAD_REQUEST)
+            return None, error
 
     def get(self, request):
         ifsc_code = request.data.get('ifsc_code')
@@ -76,12 +103,42 @@ class BankAPIView(generics.ListCreateAPIView):
         data, error = self.get_queryset(ifsc_code=ifsc_code)
 
         if data is not None:
-            serializer_class = BankDetailsReadSerializer(self.get_queryset(ifsc_code))
+            serializer_class = BranchesReadSerializer(data)
             return Response({'results': serializer_class.data},
                             status=status.HTTP_200_OK)
         else:
-            return Response({'detail':error.message },
+            return Response({'detail': error.message},
                             status=error.status)
+
+
+class BankBranchDetails(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)
+
+    serializer_class = BranchesReadSerializer
+    pagination_class = CustomPagination
+
+    def get_queryset(self, bank_name=None, city_name=None):
+        bank_id=Bank.objects.get(name=bank_name).id
+        queryset = Branches.objects.filter(city=city_name, bank_id=bank_id)
+        queryset = self.paginate_queryset(queryset)
+        return queryset, None
+
+    def get(self, request):
+        page = request.data.get('page', 1)
+        bank_name = request.data.get('bank_name')
+        city_name = request.data.get('city_name')
+
+        if bank_name is None or city_name is None:
+            return Response({'detail': 'Both bank name and city name is required'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        data, error = self.get_queryset(bank_name=bank_name, city_name=city_name)
+        if error is not None:
+            return Response({'detail': error.message},
+                            status=status.HTTP_400_BAD_REQUEST)
+        serialized_data = BranchesReadSerializer(data, many=True).data
+
+        return self.get_paginated_response(serialized_data)
 
 
 @api_view(['POST'])
