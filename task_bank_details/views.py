@@ -78,38 +78,6 @@ class BranchesView(generics.ListCreateAPIView):
             return Response('Database error occured',
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def get_queryset(self, ifsc_code=None):
-
-        try:
-            bank_details = Branches.objects.filter(ifsc_code=ifsc_code)
-
-            if bank_details.exists():
-                return bank_details.first(), None
-            else:
-                error = Error({'detail': 'IFSC code doesnot exists'},
-                              status=status.HTTP_400_BAD_REQUEST)
-                return None, error
-        except DatabaseError as e:
-            error = Error({'detail': 'Ifsc code does not exist'},
-                          status=status.HTTP_400_BAD_REQUEST)
-            return None, error
-
-    def get(self, request):
-        ifsc_code = request.data.get('ifsc_code')
-        if ifsc_code is None:
-            return Response({'detail': 'Please provide ifsc code'},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        data, error = self.get_queryset(ifsc_code=ifsc_code)
-
-        if data is not None:
-            serializer_class = BranchesReadSerializer(data)
-            return Response({'results': serializer_class.data},
-                            status=status.HTTP_200_OK)
-        else:
-            return Response({'detail': error.message},
-                            status=error.status)
-
 
 class BankBranchDetails(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
@@ -136,6 +104,42 @@ class BankBranchDetails(generics.ListAPIView):
         serialized_data = BranchesReadSerializer(data, many=True).data
 
         return self.get_paginated_response(serialized_data)
+
+
+class BankIFSCDetails(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self, ifsc_code=None):
+        try:
+            bank_details = Branches.objects.filter(ifsc_code=ifsc_code)
+
+            if bank_details.exists():
+                return bank_details.first(), None
+            else:
+                error = Error({'detail': 'IFSC code doesnot exists'},
+                              status=status.HTTP_400_BAD_REQUEST)
+                return None, error
+        except DatabaseError as e:
+            error = Error({'detail': 'Ifsc code does not exist'},
+                          status=status.HTTP_400_BAD_REQUEST)
+            return None, error
+
+    def get(self, request, ifsc_code=None):
+        print(ifsc_code, ' is the ifsc code of the bank')
+        if ifsc_code is None:
+            return Response({'detail': 'Please provide ifsc code'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        data, error = self.get_queryset(ifsc_code=ifsc_code)
+
+        if data is not None:
+            serializer_class = BranchesReadSerializer(data)
+            return Response({'results': serializer_class.data},
+                            status=status.HTTP_200_OK)
+        else:
+            return Response({'detail': error.message},
+                            status=error.status)
+
 
 
 @api_view(['POST'])
