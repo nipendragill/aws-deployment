@@ -105,7 +105,7 @@ REST_FRAMEWORK = {
     'TEST_REQUEST_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
     ),
-    'DEFAULT_PAGINATION_CLASS': 'user.pagination.CustomPagination',
+    'DEFAULT_PAGINATION_CLASS': 'test_bank_details.pagination.CustomPagination',
     'PAGE_SIZE': 5,
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',

@@ -5,7 +5,7 @@ from django.contrib.auth.models import (
     AbstractBaseUser, PermissionsMixin, BaseUserManager
 )
 from django.db import transaction
-
+from .db_models import *
 
 class UserManager(BaseUserManager):
 
