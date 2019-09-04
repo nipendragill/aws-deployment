@@ -86,8 +86,7 @@ class BankBranchDetails(generics.ListAPIView):
     pagination_class = CustomPagination
 
     def get_queryset(self, bank_name=None, city_name=None):
-        bank_id=Bank.objects.get(name=bank_name).id
-        queryset = Branches.objects.filter(city=city_name, bank_id=bank_id)
+        queryset = Branches.objects.select_related('bank_id').filter(bank_id__name=bank_name, city=city_name)
         queryset = self.paginate_queryset(queryset)
         return queryset, None
 
