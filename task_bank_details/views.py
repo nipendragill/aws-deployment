@@ -92,7 +92,6 @@ class BankBranchDetails(generics.ListAPIView):
         return queryset, None
 
     def get(self, request, bank_name=None, city_name=None):
-
         if bank_name is None or city_name is None:
             return Response({'detail': 'Both bank name and city name is required'},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -125,7 +124,7 @@ class BankIFSCDetails(generics.ListAPIView):
             return None, error
 
     def get(self, request, ifsc_code=None):
-        print(ifsc_code, ' is the ifsc code of the bank')
+
         if ifsc_code is None:
             return Response({'detail': 'Please provide ifsc code'},
                             status=status.HTTP_400_BAD_REQUEST)
