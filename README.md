@@ -13,16 +13,16 @@
   - url(r'^create/$', CreateUserAPIView.as_view(), name='create_user')
  
  - EndPoint for adding a bank and get details of all banks(allowed methods, [GET,POST])
-  - url(r'^bank/$', BankAPIView.as_view(), name='bank_info')
+   - url(r'^bank/$', BankAPIView.as_view(), name='bank_info')
   
   - EndPoint for adding a bank and get all branches (allowed methods, [GET, POST])
     - url(r'^branches', BranchesView.as_view(), name='add_branch')
    
    - EndPoint for getting bank details given IFSC code (allowed methods , [GET])
-    - url(r'^banks/(?P<ifsc_code>[\w-]+)/?$', BankIFSCDetails.as_view(), name = 'ifsc_bank_info')
+     - url(r'^banks/(?P<ifsc_code>[\w-]+)/?$', BankIFSCDetails.as_view(), name = 'ifsc_bank_info')
     
    - EndPoint for list of all banks given city name and bank name(allowed methods,[GET])
-    -     url(r'^banks/(?P<bank_name>[\w-]+)/city_name/(?P<city_name>[\w-]+)/?$', BankBranchDetails.as_view(), name = 'get_ifsc_bank_details')
+    - url(r'^banks/(?P<bank_name>[\w-]+)/city_name/(?P<city_name>[\w-]+)/?$', BankBranchDetails.as_view(), name = 'get_ifsc_bank_details')
 
   
 ## Integrated with MySQL Database
