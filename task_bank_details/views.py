@@ -37,7 +37,8 @@ class BankAPIView(generics.CreateAPIView):
         bank_data = request.data
         transaction.set_autocommit(False)
         try:
-            serializer_class = BankSerializer(data=bank_data)
+            context = {"data": request.data}
+            serializer_class = BankSerializer(data=bank_data, context=context)
             if serializer_class.is_valid(raise_exception=True):
                 serializer_class.save()
                 transaction.commit()
@@ -59,13 +60,15 @@ class BranchesView(generics.ListCreateAPIView):
 
         data = request.data
 
-        bank_id = request.data.get('bank_id')
+        bank_id = request.data.get('bank')
         transaction.set_autocommit(False)
+        print(bank_id, type(bank_id))
         try:
             bank_id_exists = Bank.objects.filter(bank_id=bank_id)
             if not bank_id_exists:
                 return Response('BankId doesnot exists',
                                 status=status.HTTP_400_BAD_REQUEST)
+            print(bank_id_exists.first())
             serializer_class = BranchesWriteSerializer(data=request.data)
             if serializer_class.is_valid(raise_exception=True):
                 serializer_class.save()
@@ -94,7 +97,8 @@ class BankBranchDetails(generics.ListAPIView):
         if bank_name is None or city_name is None:
             return Response({'detail': 'Both bank name and city name is required'},
                             status=status.HTTP_400_BAD_REQUEST)
-
+        bank_name = bank_name.upper()
+        city_name = city_name.upper()
         data, error = self.get_queryset(bank_name=bank_name, city_name=city_name)
         if error is not None:
             return Response({'detail': error.message},
@@ -123,6 +127,7 @@ class BankIFSCDetails(generics.ListAPIView):
             return None, error
 
     def get(self, request, ifsc_code=None):
+        print(ifsc_code,' is the ifsc code')
 
         if ifsc_code is None:
             return Response({'detail': 'Please provide ifsc code'},
