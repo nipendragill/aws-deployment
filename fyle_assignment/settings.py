@@ -81,7 +81,7 @@ WSGI_APPLICATION = 'fyle_assignment.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': os.environ['db_name'],
         'USER': os.environ['db_user'],
         'PASSWORD': os.environ['db_password'],
