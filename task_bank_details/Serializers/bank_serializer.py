@@ -27,5 +27,5 @@ class BranchesWriteSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['bank'] = BankSerializer(instance.bank_id).data
+        response['bank'] = BankSerializer(instance.bank).data
         return response

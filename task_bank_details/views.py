@@ -62,7 +62,7 @@ class BranchesView(generics.ListCreateAPIView):
         bank_id = request.data.get('bank_id')
         transaction.set_autocommit(False)
         try:
-            bank_id_exists = Bank.objects.filter(id=bank_id)
+            bank_id_exists = Bank.objects.filter(bank_id=bank_id)
             if not bank_id_exists:
                 return Response('BankId doesnot exists',
                                 status=status.HTTP_400_BAD_REQUEST)
@@ -86,7 +86,7 @@ class BankBranchDetails(generics.ListAPIView):
     pagination_class = CustomPagination
 
     def get_queryset(self, bank_name=None, city_name=None):
-        queryset = Branches.objects.select_related('bank_id').filter(bank_id__name=bank_name, city=city_name)
+        queryset = Branches.objects.select_related('bank').filter(bank__name=bank_name, city=city_name)
         queryset = self.paginate_queryset(queryset)
         return queryset, None
 
