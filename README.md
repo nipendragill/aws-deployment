@@ -2,7 +2,7 @@
 
 ## Steps for api data:
 - https://fylepostgres.herokuapp.com/api/v1/create/
- - Create a user first to get the token, or you can use the token that I have generate on 7th September, which will expire in 7 days
+ - Create a user first to get the token, or you can use the token that I have generate on 7th September, which will expire in 5 days
  - pass the following data in request body to create user
   - { "emailId": "abcd123@gmail.com",
       "password" : "ahgeohgaoghoa",
