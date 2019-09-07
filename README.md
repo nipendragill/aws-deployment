@@ -1,5 +1,55 @@
 # Overview about repository
 
+## Steps for api data:
+- https://fylepostgres.herokuapp.com/api/v1/create/
+ - Create a user first to get the token, or you can use the token that I have generate on 7th September, which will expire in 7 days
+ - pass the following data in request body to create user
+  - { "emailId": "abcd123@gmail.com",
+      "password" : "ahgeohgaoghoa",
+      "first_name" : "abcd",
+      "last_name" : "def"
+      }
+      
+      
+- https://fylepostgres.herokuapp.com/api/v1/get_token/
+ - After registering the user call get_token api
+ - Pass following data in request body"
+ - {
+    "email" : "abcd123@gmail.com",
+   "password": "ahgeohgaoghoa"
+   }
+   
+   ### In below all endpoints pass, Authorization : JWT tokenobtained, content_type: application/json
+   ### After this add a bank
+- https://fylepostgres.herokuapp.com/api/v1/bank/
+ - Pass following data in request body in json format
+    {"bank_id": 47777712177,
+    "name" : "AXIS"
+    }
+    
+- https://fylepostgres.herokuapp.com/api/v1/branches/
+- Add a branch with bank Id , In request body pass :
+ - {
+    "bank":47777712177,
+	"ifsc_code":"ABCD1327",
+	"branch":"WhiteField",
+	"address":"Bangalore geag KR Puramgahog",
+	"city":"Chennai",
+	"district":"Bangalore",
+	"state":"Chennai"
+  }
+  
+- https://fylepostgres.herokuapp.com/api/v1/banks/ABCD1327/
+ - Get bank details given ifsc code, hit the above url with ifsc code
+
+
+- https://fylepostgres.herokuapp.com/api/v1/banks/ICICI/city_name/chennai/
+ - hit the above url with bank_name and city_name in query params, Pass bank name without space separated like for AXIS BANK pass AXIS
+ 
+ - for paginated response 
+ - hit the url below
+ - https://fylepostgres.herokuapp.com/api/v1/banks/ICICI/city_name/chennai/?page_size=1&page=1
+
 ## Implemented User Authentication using JSon Web Tokens
 - EndPoint for getting token
   - url(r'^get_token/$', authenticate_user, name='get_token')
@@ -25,14 +75,12 @@
      - url(r'^banks/(?P<bank_name>[\w-]+)/city_name/(?P<city_name>[\w-]+)/?$', BankBranchDetails.as_view(), name = 'get_ifsc_bank_details')
 
   
-## Integrated with MySQL Database
+## Integrated with Postgres SQL Database
 
 # Commands to run the project
 
 - git clone https://github.com/nipendragill/fyle_django_assignment.git
 - pip install virtualenv
 - virtualenv fyle_env
-- Go to file inside fyle_env -> Lib -> site-packages -> django ->db ->backend -> mysql -> base.py
-- In base.py change , if version < (1, 3, 13): to if version < (1, 3, 12): and save
 - Create a database with name , password, user, and set the corresponding in .env file
 - run python manage.py runserver
