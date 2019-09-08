@@ -158,6 +158,7 @@ def authenticate_user(request):
 
         user = User.objects.filter(email=email, password=password)
         if user.exists():
+            print(user.count())
             try:
                 user = user.first()
                 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
@@ -175,7 +176,7 @@ def authenticate_user(request):
                 raise e
         else:
             res = {
-                'error': 'account is currently inactive, please activate your account'}
+                'error': 'No user exists with this name and password'}
             return Response(res, status=status.HTTP_403_FORBIDDEN)
     except Exception as e:
         return Response({'detail':'User does not exist'},
