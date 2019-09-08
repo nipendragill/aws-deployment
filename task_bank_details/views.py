@@ -152,9 +152,14 @@ def authenticate_user(request):
         email = request.data['email']
         password = request.data['password']
 
-        user = User.objects.get(email=email, password=password)
-        if user:
+        if email is None or password is None:
+            return Response({'detail':'Both email and password are required'},
+                             status=status.HTTP_400_BAD_REQUEST)
+
+        user = User.objects.filter(email=email, password=password)
+        if user.exists():
             try:
+                user = user.first()
                 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
                 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
                 payload = jwt_payload_handler(user)
@@ -172,6 +177,6 @@ def authenticate_user(request):
             res = {
                 'error': 'account is currently inactive, please activate your account'}
             return Response(res, status=status.HTTP_403_FORBIDDEN)
-    except KeyError:
-        res = {'error': 'pleasae provide email address and password'}
-        return Response(res)
+    except Exception as e:
+        return Response({'detail':'User does not exist'},
+                        status=status.HTTP_400_BAD_REQUEST)
