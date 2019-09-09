@@ -14,6 +14,7 @@ from .pagination import CustomPagination
 from django.db import transaction, DatabaseError
 from rest_framework import request
 from .error import Error
+from django.contrib.auth.hashers import make_password
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from rest_framework.pagination import PageNumberPagination
 
@@ -23,10 +24,25 @@ class CreateUserAPIView(APIView):
 
     def post(self, request):
         user = request.data
-        serializer = UserSerializer(data=user)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        request.data['password'] = make_password(salt='ryan',password=request.data['password'])
+        transaction.set_autocommit(False)
+        try:
+            serializer = UserSerializer(data=request.data)
+            if serializer.is_valid(raise_exception=True):
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                transaction.commit()
+                transaction.set_autocommit(True)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                transaction.rollback()
+                transaction.set_autocommit(False)
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except DatabaseError as e:
+            transaction.rollback()
+            transaction.set_autocommit(False)
+            return Response({'detail':'Database error occured'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class BankAPIView(generics.CreateAPIView):
@@ -62,13 +78,11 @@ class BranchesView(generics.ListCreateAPIView):
 
         bank_id = request.data.get('bank')
         transaction.set_autocommit(False)
-        print(bank_id, type(bank_id))
         try:
             bank_id_exists = Bank.objects.filter(bank_id=bank_id)
             if not bank_id_exists:
                 return Response('BankId doesnot exists',
                                 status=status.HTTP_400_BAD_REQUEST)
-            print(bank_id_exists.first())
             serializer_class = BranchesWriteSerializer(data=request.data)
             if serializer_class.is_valid(raise_exception=True):
                 serializer_class.save()
@@ -127,7 +141,6 @@ class BankIFSCDetails(generics.ListAPIView):
             return None, error
 
     def get(self, request, ifsc_code=None):
-        print(ifsc_code,' is the ifsc code')
 
         if ifsc_code is None:
             return Response({'detail': 'Please provide ifsc code'},
@@ -150,15 +163,13 @@ class BankIFSCDetails(generics.ListAPIView):
 def authenticate_user(request):
     try:
         email = request.data['email']
-        password = request.data['password']
-
+        password = make_password(salt='ryan', password=request.data['password'])
         if email is None or password is None:
             return Response({'detail':'Both email and password are required'},
                              status=status.HTTP_400_BAD_REQUEST)
 
         user = User.objects.filter(email=email, password=password)
         if user.exists():
-            print(user.count())
             try:
                 user = user.first()
                 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
