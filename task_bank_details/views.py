@@ -107,8 +107,9 @@ class BankBranchDetails(generics.ListAPIView):
         queryset = self.paginate_queryset(queryset)
         return queryset, None
 
-    def get(self, request,city_name=None):
+    def get(self, request):
         bank_name = request.query_params.get('bank_name')
+        city_name = request.query_params.get('city_name')
         if bank_name is None or city_name is None:
             return Response({'detail': 'Both bank name and city name is required'},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -141,8 +142,9 @@ class BankIFSCDetails(generics.ListAPIView):
                           status=status.HTTP_400_BAD_REQUEST)
             return None, error
 
-    def get(self, request, ifsc_code=None):
+    def get(self, request):
 
+        ifsc_code = request.query_params.get('ifsc_code')
         if ifsc_code is None:
             return Response({'detail': 'Please provide ifsc code'},
                             status=status.HTTP_400_BAD_REQUEST)
