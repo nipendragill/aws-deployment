@@ -1,5 +1,27 @@
 # Overview about repository
 
+
+## List of Curl Commands:
+
+    - 1) For getting details of bank based on IFSC Code,
+     - You can replace the ifsc code with any one of the following [BANK1219,BANK1218,BANK1217,BANK1216,BANK1215] and run the below curl command
+     - curl -i 'GET' -H "Authorization":"JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo2MSwidXNlcm5hbWUiOiJyeWFuY2hhdWRoYXJ5MTIzQGdtYWlsLmNvbSIsImV4cCI6MTU2ODUzODM2MywiZW1haWwiOiJyeWFuY2hhdWRoYXJ5MTIzQGdtYWlsLmNvbSJ9.4YjOUbUPeu9ZVcxKb3kFAR0yTR7ioGcEyQwH3aJ42Gc" "https://fylepostgres.herokuapp.com/api/v1/banks/BANK1219/"
+
+
+    - 2) For getting details of bank on the basis of city name and bank name
+      - Put any one of the bank name in query params[AXI BANK, CANARA BANK, STATE BANK OF INDIA]
+       - Please be make sure to add + , in between space like for AXIS BANK put AXIS+BANK in query bank and some for others
+
+       - Cities to put in query params [Bangalore, Chennai, Hydrebad]
+
+    - curl -X GET -H "Authorization":"JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo2MSwidXNlcm5hbWUiOiJyeWFuY2hhdWRoYXJ5MTIzQGdtYWlsLmNvbSIsImV4cCI6MTU2ODUzODM2MywiZW1haWwiOiJyeWFuY2hhdWRoYXJ5MTIzQGdtYWlsLmNvbSJ9.4YjOUbUPeu9ZVcxKb3kFAR0yTR7ioGcEyQwH3aJ42Gc" "https://fylepostgres.herokuapp.com/api/v1/city_name/Chennai/?bank_name=AXIS+BANK"
+    - curl -X GET -H "Authorization":"JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo2MSwidXNlcm5hbWUiOiJyeWFuY2hhdWRoYXJ5MTIzQGdtYWlsLmNvbSIsImV4cCI6MTU2ODUzODM2MywiZW1haWwiOiJyeWFuY2hhdWRoYXJ5MTIzQGdtYWlsLmNvbSJ9.4YjOUbUPeu9ZVcxKb3kFAR0yTR7ioGcEyQwH3aJ42Gc" "https://fylepostgres.herokuapp.com/api/v1/city_name/Bangalore/?bank_name=STATE+BANK+OF+INDIA"
+    - curl -X GET -H "Authorization":"JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo2MSwidXNlcm5hbWUiOiJyeWFuY2hhdWRoYXJ5MTIzQGdtYWlsLmNvbSIsImV4cCI6MTU2ODUzODM2MywiZW1haWwiOiJyeWFuY2hhdWRoYXJ5MTIzQGdtYWlsLmNvbSJ9.4YjOUbUPeu9ZVcxKb3kFAR0yTR7ioGcEyQwH3aJ42Gc" "https://fylepostgres.herokuapp.com/api/v1/city_name/Bangalore/?bank_name=AXIS+BANK"
+
+    3) For getting paginated response put details same as above in point 2 along with page_size and page params
+
+    - curl -X GET -H "Authorization":"JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo2MSwidXNlcm5hbWUiOiJyeWFuY2hhdWRoYXJ5MTIzQGdtYWlsLmNvbSIsImV4cCI6MTU2ODUzODM2MywiZW1haWwiOiJyeWFuY2hhdWRoYXJ5MTIzQGdtYWlsLmNvbSJ9.4YjOUbUPeu9ZVcxKb3kFAR0yTR7ioGcEyQwH3aJ42Gc" "https://fylepostgres.herokuapp.com/api/v1/city_name/Chennai/?bank_name=AXIS+BANK&page=1&page_size=2"
+
 ## Steps for api data:
 - https://fylepostgres.herokuapp.com/api/v1/create/          [POST]
  - Create a user first to get the token, or you can use the token that I have generate on 7th September, which will expire in 5 days
@@ -43,12 +65,14 @@
  - Get bank details given ifsc code, hit the above url with ifsc code
 
 
-- https://fylepostgres.herokuapp.com/api/v1/banks/ICICI/city_name/chennai/    [GET]
+- https://fylepostgres.herokuapp.com/api/v1/city_name/chennai/    [GET]
+ - in request body pass {"bank_name":"name of the bank"}
  - hit the above url with bank_name and city_name in query params, Pass bank name without space separated like for AXIS BANK pass AXIS
  
  - for paginated response 
  - hit the url below
- - https://fylepostgres.herokuapp.com/api/v1/banks/ICICI/city_name/chennai/?page_size=1&page=1    [GET]
+ - https://fylepostgres.herokuapp.com/api/v1/city_name/chennai/?page_size=1&page=1    [GET]
+  -  - in request body pass {"bank_name":"name of the bank"}
 
 ## Implemented User Authentication using JSon Web Tokens
 - EndPoint for getting token
@@ -72,7 +96,8 @@
      - url(r'^banks/(?P<ifsc_code>[\w-]+)/?$', BankIFSCDetails.as_view(), name = 'ifsc_bank_info')
     
    - EndPoint for list of all banks given city name and bank name(allowed methods,[GET])
-     - url(r'^banks/(?P<bank_name>[\w-]+)/city_name/(?P<city_name>[\w-]+)/?$', BankBranchDetails.as_view(), name = 'get_ifsc_bank_details')
+     - url(r'^city_name/(?P<city_name>[\w-]+)/?$', BankBranchDetails.as_view(), name = 'get_ifsc_bank_details')
+     -  - in request body pass {"bank_name":"name of the bank"}
 
   
 ## Integrated with Postgres SQL Database
