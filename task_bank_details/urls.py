@@ -6,5 +6,5 @@ urlpatterns = [
     url(r'^bank/$', BankAPIView.as_view(), name='bank_info'),
     url(r'^branches', BranchesView.as_view(), name='add_branch'),
     url(r'^banks/(?P<ifsc_code>[\w-]+)/?$', BankIFSCDetails.as_view(), name = 'ifsc_bank_info'),
-    url(r'^banks/(?P<bank_name>[\w-]+)/city_name/(?P<city_name>[\w-]+)/?$', BankBranchDetails.as_view(), name = 'get_ifsc_bank_details')
+    url(r'^city_name/(?P<city_name>[\w-]+)/?$', BankBranchDetails.as_view(), name = 'get_ifsc_bank_details')
 ]

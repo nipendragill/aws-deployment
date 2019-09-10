@@ -107,7 +107,8 @@ class BankBranchDetails(generics.ListAPIView):
         queryset = self.paginate_queryset(queryset)
         return queryset, None
 
-    def get(self, request, bank_name=None, city_name=None):
+    def get(self, request,city_name=None):
+        bank_name = request.data.get('bank_name')
         if bank_name is None or city_name is None:
             return Response({'detail': 'Both bank name and city name is required'},
                             status=status.HTTP_400_BAD_REQUEST)
