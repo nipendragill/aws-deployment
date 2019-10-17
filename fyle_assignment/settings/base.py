@@ -16,6 +16,7 @@ import datetime
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.abspath(os.path.join(BASE_DIR,os.pardir))
 DOT_ENV_PATH = os.path.join(BASE_DIR, '.env')
 load_dotenv(DOT_ENV_PATH)
 
@@ -30,7 +31,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1','https://fylepostgres.herokuapp.com']
+ALLOWED_HOSTS = ['*']
 
 AUTH_USER_MODEL = 'task_bank_details.User'
 # Application definition
